@@ -22,7 +22,18 @@
 	// any first run UI by putting it after this call.
     NSLog(@"applicationWillFinishlaunching: %@", aNotification);
 	
-	PFMoveToApplicationsFolderIfNecessary();
+	PFMoveToApplicationsFolderIfNecessary(nil);
+	
+//	PFMoveToApplicationsFolderIfNecessary(@{
+//		pfShowSupressButtonKey: @NO,
+//		pfShowCancelButtonKey: @NO,
+//		pfInformativeTextKey: @"informative text",
+//		pfInformativeTextAuthorizationKey: @"auth text",
+//		pfInformativeTextDownloadFolderKey: @"download folder",
+//		pfMoveApplicationButtonTextKey: @"buttontextkey",
+//		pfMoveApplicationTitleKey: @"Title",
+//		pfMoveApplicationTitleHomeKey: @"Title Home",
+//	});
 	
 	[window center];
 	[window makeKeyAndOrderFront:self];

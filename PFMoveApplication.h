@@ -12,13 +12,22 @@ extern "C" {
 	
 #import <Foundation/Foundation.h>
 
+static NSString * _Nonnull pfShowSupressButtonKey = @"pfShowSupressButtonKey";
+static NSString * _Nonnull pfShowCancelButtonKey = @"pfShowCancelButtonKey";
+static NSString * _Nonnull pfInformativeTextKey = @"pfInformativeTextKey";
+static NSString * _Nonnull pfInformativeTextAuthorizationKey = @"pfInformativeTextAuthorizationKey";
+static NSString * _Nonnull pfInformativeTextDownloadFolderKey = @"pfInformativeTextDownloadFolderKey";
+static NSString * _Nonnull pfMoveApplicationButtonTextKey = @"pfMoveApplicationButtonTextKey";
+static NSString * _Nonnull pfMoveApplicationTitleKey = @"pfMoveApplicationTitleKey";
+static NSString * _Nonnull pfMoveApplicationTitleHomeKey = @"pfMoveApplicationTitleHomeKey";
+
 /**
  Moves the running application to ~/Applications or /Applications if the former does not exist.
  After the move, it relaunches app from the new location.
  DOES NOT work for sandboxed applications.
  
  Call from \c NSApplication's delegate method \c -applicationWillFinishLaunching: method. */
-void PFMoveToApplicationsFolderIfNecessary(void);
+void PFMoveToApplicationsFolderIfNecessary(NSDictionary * _Nullable config);
 
 /**
  Check whether an app move is currently in progress.

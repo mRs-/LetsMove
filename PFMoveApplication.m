@@ -62,14 +62,20 @@ static BOOL CopyBundle(NSString *srcPath, NSString *dstPath);
 static NSString *ShellQuotedString(NSString *string);
 static void Relaunch(NSString *destinationPath);
 
+//static NSString *pfShow
+
 // Main worker function
-void PFMoveToApplicationsFolderIfNecessary(void) {
+void PFMoveToApplicationsFolderIfNecessary(NSDictionary * _Nullable config) {
+	
+	if (config == nil) {
+		config = [NSDictionary new];
+	}
 
 	// Make sure to do our work on the main thread.
 	// Apparently Electron apps need this for things to work properly.
 	if (![NSThread isMainThread]) {
 		dispatch_async(dispatch_get_main_queue(), ^{
-			PFMoveToApplicationsFolderIfNecessary();
+			PFMoveToApplicationsFolderIfNecessary(config);
 		});
 		return;
 	}
@@ -113,32 +119,48 @@ void PFMoveToApplicationsFolderIfNecessary(void) {
 	{
 		NSString *informativeText = nil;
 
-		[alert setMessageText:(installToUserApplications ? kStrMoveApplicationQuestionTitleHome : kStrMoveApplicationQuestionTitle)];
+	    NSString *titleHome = [config objectForKey:pfMoveApplicationTitleKey] == nil ?
+	    kStrMoveApplicationQuestionTitleHome : [config objectForKey:pfMoveApplicationTitleKey];
+	  
+	    NSString *titleApplication = [config objectForKey:pfMoveApplicationTitleHomeKey] == nil ?
+	    kStrMoveApplicationQuestionTitle : [config objectForKey:pfMoveApplicationTitleHomeKey];
+	  
+	  NSString *titleString = installToUserApplications ? titleHome : titleApplication;
+	  
+		[alert setMessageText:(titleString)];
 
-		informativeText = kStrMoveApplicationQuestionMessage;
+		id configInformationText = [config objectForKey:pfInformativeTextKey];
+		informativeText = configInformationText == nil ? kStrMoveApplicationQuestionMessage : configInformationText;
 
 		if (needAuthorization) {
 			informativeText = [informativeText stringByAppendingString:@" "];
-			informativeText = [informativeText stringByAppendingString:kStrMoveApplicationQuestionInfoWillRequirePasswd];
+			id configAuthText = [config objectForKey:pfInformativeTextAuthorizationKey];
+			informativeText = [informativeText stringByAppendingString: configAuthText == nil ? kStrMoveApplicationQuestionInfoWillRequirePasswd : configAuthText];
 		}
 		else if (IsInDownloadsFolder(bundlePath)) {
 			// Don't mention this stuff if we need authentication. The informative text is long enough as it is in that case.
 			informativeText = [informativeText stringByAppendingString:@" "];
-			informativeText = [informativeText stringByAppendingString:kStrMoveApplicationQuestionInfoInDownloadsFolder];
+			id configDowloadText = [config objectForKey:pfInformativeTextDownloadFolderKey];
+			informativeText = [informativeText stringByAppendingString: configDowloadText == nil ? kStrMoveApplicationQuestionInfoInDownloadsFolder : configDowloadText];
 		}
 
 		[alert setInformativeText:informativeText];
 
 		// Add accept button
-		[alert addButtonWithTitle:kStrMoveApplicationButtonMove];
+	    id configMoveButtonTitle = [config objectForKey:pfMoveApplicationButtonTextKey];
+	    [alert addButtonWithTitle:configMoveButtonTitle == nil ? kStrMoveApplicationButtonMove: configMoveButtonTitle];
 
-		// Add deny button
-		NSButton *cancelButton = [alert addButtonWithTitle:kStrMoveApplicationButtonDoNotMove];
-		[cancelButton setKeyEquivalent:[NSString stringWithFormat:@"%C", 0x1b]]; // Escape key
+		if ([config objectForKey:pfShowCancelButtonKey] == nil) {
+			// Add deny button
+			NSButton *cancelButton = [alert addButtonWithTitle:kStrMoveApplicationButtonDoNotMove];
+			[cancelButton setKeyEquivalent:[NSString stringWithFormat:@"%C", 0x1b]]; // Escape key
+		}
 
-		// Setup suppression button
-		[alert setShowsSuppressionButton:YES];
-
+		if ([config objectForKey:pfShowSupressButtonKey] == nil) {
+			// Setup suppression button
+			[alert setShowsSuppressionButton:YES];
+		}
+		
 		if (PFUseSmallAlertSuppressCheckbox) {
 			NSCell *cell = [[alert suppressionButton] cell];
 			[cell setControlSize:NSControlSizeSmall];
