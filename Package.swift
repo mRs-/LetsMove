@@ -24,6 +24,7 @@ let package = Package(
             dependencies: [],
             path: "Sources/LetsMove",
             sources: ["PFMoveApplication.m"],
+            publicHeadersPath: ".",
             cSettings: [CSetting.unsafeFlags(["-fno-objc-arc"])]
         ),
         .target(
