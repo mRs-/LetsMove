@@ -9,7 +9,8 @@ let package = Package(
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(
             name: "LetsMove",
-            targets: ["LetsMove"]),
+            targets: ["LetsMove"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -19,8 +20,17 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
-            name: "LetsMove",
+            name: "LetsMoveObjC",
             dependencies: [],
-            cSettings: [CSetting.unsafeFlags(["-fno-objc-arc"])]),
+            path: "Sources/LetsMove",
+            sources: ["PFMoveApplication.m"],
+            cSettings: [CSetting.unsafeFlags(["-fno-objc-arc"])]
+        ),
+        .target(
+            name: "LetsMove",
+            dependencies: ["LetsMoveObjC"],
+            sources: ["LetsMove.swift"],
+            swiftSettings: [SwiftSetting.define("SPMBuild")]
+        ),
     ]
 )
